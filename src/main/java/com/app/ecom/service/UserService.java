@@ -1,37 +1,42 @@
 package com.app.ecom.service;
 
+import com.app.ecom.dto.UserRequestDTO;
+import com.app.ecom.dto.UserResponseDTO;
 import com.app.ecom.entities.User;
+import com.app.ecom.mapper.UserMapper;
+import com.app.ecom.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
-    private Long idCtr = 0L;
-    private final List<User> userList = new ArrayList<>();
+    private final UserRepository userRepository;
+    private final UserMapper userMapper;
 
-    public List<User> getAllUsers() {
-        return userList;
+    public List<UserResponseDTO> getAllUsers() {
+        List<User> users = userRepository.findAll();
+        return userMapper.toDTOList(users);
     }
 
-    public List<User> addUser(User user) {
-        user.setId(++idCtr);
-        userList.add(user);
-        return userList;
+    public UserResponseDTO addUser(UserRequestDTO userRequestDTO) {
+        User user = userMapper.toEntity(userRequestDTO);
+        User savedUser = userRepository.save(user);
+        return userMapper.toDTO(savedUser);
     }
 
-    public Optional<User> getUserById(Long id) {
-        return userList.stream()
-                .filter(user -> user.getId().equals(id))
-                .findFirst();
+    public Optional<UserResponseDTO> fetchUserById(Long id) {
+        return userRepository.findById(id)
+                .map(userMapper::toDTO);
     }
 
-    public boolean updateUser(Long id, User updatedUser) {
-        return getUserById(id).map(user -> {
-            user.setFirstName(updatedUser.getFirstName());
-            user.setLastName(updatedUser.getLastName());
+    public boolean updateUser(Long id, UserResponseDTO updatedUserResponseDTO) {
+        return userRepository.findById(id).map(existingUser -> {
+            userMapper.updateEntityFromDTO(updatedUserResponseDTO, existingUser);
+            userRepository.save(existingUser);
             return true;
         }).orElse(false);
     }
