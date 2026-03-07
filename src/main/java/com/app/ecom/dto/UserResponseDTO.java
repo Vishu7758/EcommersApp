@@ -1,6 +1,6 @@
 package com.app.ecom.dto;
 
-import enums.UserRole;
+import com.app.ecom.enums.UserRole;
 import lombok.Data;
 
 @Data

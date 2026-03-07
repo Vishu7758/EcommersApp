@@ -1,6 +1,6 @@
 package com.app.ecom.entities;
 
-import enums.UserRole;
+import com.app.ecom.enums.UserRole;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
